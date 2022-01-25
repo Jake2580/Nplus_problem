@@ -96,6 +96,8 @@ urlpatterns = [
 ```
 
 <br>
+<br>
+<br>
 
 ### reservations\models.py
 
@@ -132,6 +134,8 @@ class Owner(models.Model):
 # ModuleNotFoundError: No module named 'reservations.urls'
 ```
 
+<br>
+<br>
 <br>
 
 ### reservations\views.py
@@ -171,6 +175,8 @@ class OwnerListView(View):
 ```
 
 <br>
+<br>
+<br>
 
 ### reservations\urls.py
 
@@ -206,15 +212,14 @@ reservations\templates\reservations\owner_list.html
 reservations\templates\reservations\reservation_list.html
 <br>
 <br>
-<br>
-
-접속
 
 ```css
 "GET /reservations/reservation/ HTTP/1.1" 200 5
 "GET /reservations/owner/ HTTP/1.1" 200 19
 ```
 
+<br>
+<br>
 <br>
 
 ### reservations\admin.py
@@ -343,13 +348,8 @@ http://127.0.0.1:8000/reservations/owner/
 
 ```sql
 (0.000)
-SELECT
-"reservations_owner"."id",
-"reservations_owner"."age",
-"reservations_owner"."name"
-FROM
-"reservations_owner";
-args=(); alias=default
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"; args=(); alias=default
 
 "GET /reservations/owner/ HTTP/1.1" 200 136
 ```
