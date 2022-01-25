@@ -1,6 +1,5 @@
 django-admin startproject Nplus_problem
 <br>
-
 cd Nplus_problem
 <br>
 <br>
@@ -200,6 +199,7 @@ python manage.py makemigrations
 <br>
 python manage.py migrate
 <br>
+<br>
 
 reservations\templates\reservations\owner_list.html
 <br>
@@ -253,42 +253,74 @@ Owner
 # objects
 
 http://127.0.0.1:8000/reservations/reservation/
+<br>
+
+<br>
+objects.all()
 
 ```sql
 (0.000)
-SELECT "reservations_reservation"."id", "reservations_reservation"."content", "reservations_reservation"."owner_id" FROM "reservations_reservation"; args=(); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 1 LIMIT 21; args=(1,); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 1 LIMIT 21; args=(1,); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 2 LIMIT 21; args=(2,); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 4 LIMIT 21; args=(4,); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 4 LIMIT 21; args=(4,); alias=default
-(0.000) SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name" FROM "reservations_owner" WHERE "reservations_owner"."id" = 1 LIMIT 21; args=(1,); alias=default
+SELECT "reservations_reservation"."id", "reservations_reservation"."content", "reservations_reservation"."owner_id"
+FROM "reservations_reservation"; args=(); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 1
+LIMIT 21; args=(1,); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 1
+LIMIT 21; args=(1,); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 2
+LIMIT 21; args=(2,); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 4
+LIMIT 21; args=(4,); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 4
+LIMIT 21; args=(4,); alias=default
+
+(0.000)
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id" = 1
+LIMIT 21; args=(1,); alias=default
 
 "GET /reservations/reservation/ HTTP/1.1" 200 232
 ```
 
+<br>
+objects.prefetch_related('owner_id')
+
 ```sql
 (0.000)
-SELECT
-"reservations_reservation"."id",
-"reservations_reservation"."content",
-"reservations_reservation"."owner_id"
-FROM
-"reservations_reservation";
-args=(); alias=default
+SELECT "reservations_reservation"."id", "reservations_reservation"."content", "reservations_reservation"."owner_id"
+FROM "reservations_reservation"; args=(); alias=default
 
 (0.000)
-SELECT "reservations_owner"."id",
-"reservations_owner"."age",
-"reservations_owner"."name"
-FROM
-"reservations_owner"
-WHERE
-"reservations_owner"."id" IN (1, 2, 4);
-args=(1, 2, 4); alias=default
+SELECT "reservations_owner"."id", "reservations_owner"."age", "reservations_owner"."name"
+FROM "reservations_owner"
+WHERE "reservations_owner"."id"
+IN (1, 2, 4); args=(1, 2, 4); alias=default
 
 "GET /reservations/reservation/?result=fetch HTTP/1.1" 200 232
 ```
+
+<br>
+objects.select_related('owner_id')
 
 ```sql
 (0.000)
@@ -299,22 +331,17 @@ SELECT
 "reservations_owner"."id",
 "reservations_owner"."age",
 "reservations_owner"."name"
-FROM
-"reservations_reservation"
-INNER JOIN
-"reservations_owner"
-ON
-("reservations_reservation"."owner_id" = "reservations_owner"."id");
-args=(); alias=default
+FROM "reservations_reservation"
+INNER JOIN "reservations_owner"
+ON ("reservations_reservation"."owner_id" = "reservations_owner"."id"); args=(); alias=default
 
 "GET /reservations/reservation/?result=select HTTP/1.1" 200 232
 ```
 
 <br>
-
 http://127.0.0.1:8000/reservations/owner/
 
-```css
+```sql
 (0.000)
 SELECT
 "reservations_owner"."id",
