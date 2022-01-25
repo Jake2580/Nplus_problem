@@ -1,0 +1,7 @@
+{% block content %}
+<h1>Owner</h1>
+{% for owner in object_list %}
+    <p>{{owner.id}} - {{owner.age}} - {{owner.name}}</p>
+{% endfor %}
+
+{% endblock content %}
