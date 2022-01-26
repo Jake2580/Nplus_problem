@@ -106,8 +106,8 @@ urlpatterns = [
 | Reservation  |
 |--------------|
 | id: pk       |
-| content      |
-| owner_id: fk |
+| context      |
+| owner(Owner): fk |
 
 | Owner  |
 |--------|
@@ -119,12 +119,13 @@ urlpatterns = [
 
 ```python
 class Reservation(models.Model):
-    content = models.CharField(max_length=120)
-    owner_id = models.ForeignKey(
-        "Owner",
-        related_name="owner",
+    context = models.TextField()
+    owner = models.ForeignKey(
+        'Owner',
+        related_name="owners",
+        related_query_name="owner",
         on_delete=models.CASCADE,
-        db_column="owner_id"
+        db_column="owner"
     )
 
 class Owner(models.Model):
@@ -155,9 +156,9 @@ class ReservationListView(View):
         if 'all' in result:
             self.queryset = Reservation.objects.all()
         elif 'fetch' in result:
-            self.queryset = Reservation.objects.prefetch_related('owner_id')
+            self.queryset = Reservation.objects.prefetch_related('owner')
         elif 'select' in result:
-            self.queryset = Reservation.objects.select_related('owner_id')
+            self.queryset = Reservation.objects.select_related('owner')
         else:
             self.queryset = None
             
@@ -235,14 +236,21 @@ admin.site.register(Owner)
 
 ```
 
+<br>
+<br>
+alter table reservations_reservation rename column owner_id to owner;
+<br>
+alter table reservations_reservation rename column content to context;
+<br>
+
 ```
 Reservation
-1 - content1 - 1(Jake)
-2 - content2 - 1(Jake)
-3 - content3 - 2(Chan mini)
-4 - content4 - 4(홍길동)
-5 - content5 - 4(홍길동)
-6 - content6 - 1(Jake)
+1 - ctx1 - 1(Jake)
+2 - ctx2 - 1(Jake)
+3 - ctx3 - 2(Chan mini)
+4 - ctx4 - 4(홍길동)
+5 - ctx5 - 4(홍길동)
+6 - ctx6 - 1(Jake)
 
 Owner
 1 - 26 - Jake
@@ -265,7 +273,7 @@ objects.all()
 
 ```sql
 (0.000)
-SELECT "reservations_reservation"."id", "reservations_reservation"."content", "reservations_reservation"."owner_id"
+SELECT "reservations_reservation"."id", "reservations_reservation"."context", "reservations_reservation"."owner"
 FROM "reservations_reservation"; args=(); alias=default
 
 (0.000)
@@ -308,11 +316,11 @@ LIMIT 21; args=(1,); alias=default
 ```
 
 <br>
-objects.prefetch_related('owner_id')
+objects.prefetch_related('owner')
 
 ```sql
 (0.000)
-SELECT "reservations_reservation"."id", "reservations_reservation"."content", "reservations_reservation"."owner_id"
+SELECT "reservations_reservation"."id", "reservations_reservation"."context", "reservations_reservation"."owner"
 FROM "reservations_reservation"; args=(); alias=default
 
 (0.000)
@@ -325,20 +333,20 @@ IN (1, 2, 4); args=(1, 2, 4); alias=default
 ```
 
 <br>
-objects.select_related('owner_id')
+objects.select_related('owner')
 
 ```sql
 (0.000)
 SELECT
 "reservations_reservation"."id",
-"reservations_reservation"."content",
-"reservations_reservation"."owner_id",
+"reservations_reservation"."context",
+"reservations_reservation"."owner",
 "reservations_owner"."id",
 "reservations_owner"."age",
 "reservations_owner"."name"
 FROM "reservations_reservation"
 INNER JOIN "reservations_owner"
-ON ("reservations_reservation"."owner_id" = "reservations_owner"."id"); args=(); alias=default
+ON ("reservations_reservation"."owner" = "reservations_owner"."id"); args=(); alias=default
 
 "GET /reservations/reservation/?result=select HTTP/1.1" 200 232
 ```
@@ -356,4 +364,69 @@ FROM "reservations_owner"; args=(); alias=default
 
 <br>
 <br>
+<br>
+
+# Owner Detail View
+
+### reservations\views.py
+
+```python
+class OwnerView(View):
+    template_name = 'reservations/owner_detail.html'  # DetailView
+
+    model = Owner
+
+    def get_object(self):
+        id = self.kwargs.get('id')
+
+        if id is None:
+            return None
+
+        obj = get_object_or_404(self.model, id=id)
+        return obj
+    
+    # GET Method
+    def get(self, request, id=None, *args, **kwargs):
+        obj = self.get_object()
+        context = dict(object=obj, owners=obj.owners.all())
+        return render(request, self.template_name, context)
+
+```
+
+<br>
+
+### reservations\urls.py
+
+```python
+from .views import OwnerListView, OwnerView, ReservationListView
+
+app_name = 'reservations'
+urlpatterns = [
+    path('reservation/', ReservationListView.as_view(), name='reservations-list'),
+    path('owner/', OwnerListView.as_view(), name='owners-list'),
+    path('owner/<int:id>/', OwnerView.as_view(), name='owners-detail'),
+]
+
+```
+
+<br>
+
+### reservations\templates\reservations\owner_detail.html
+
+```django
+{% block content %}
+
+<h1>{{object.id}} - {{object.age}} - {{object.name}}</h1>
+{% if owners %}
+
+    <h2>Reservation</h2>
+    {% for reservation in owners %}
+        {{reservation.id}} - {{reservation.context}}<br>
+    {% endfor %}
+
+{% endif %}
+
+{% endblock content %}
+```
+
 <br>

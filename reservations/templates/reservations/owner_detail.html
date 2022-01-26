@@ -1,0 +1,13 @@
+{% block content %}
+
+<h1>{{object.id}} - {{object.age}} - {{object.name}}</h1>
+{% if owners %}
+
+    <h2>Reservation</h2>
+    {% for reservation in owners %}
+        {{reservation.id}} - {{reservation.context}}<br>
+    {% endfor %}
+
+{% endif %}
+
+{% endblock content %}

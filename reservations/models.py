@@ -2,12 +2,13 @@ from django.db import models
 
 # Create your models here.
 class Reservation(models.Model):
-    content = models.TextField()
-    owner_id = models.ForeignKey(
-        "Owner",
-        related_name="owner",
+    context = models.TextField()
+    owner = models.ForeignKey(
+        'Owner',
+        related_name="owners",
+        related_query_name="owner",
         on_delete=models.CASCADE,
-        db_column="owner_id"
+        db_column="owner"
     )
 
 class Owner(models.Model):

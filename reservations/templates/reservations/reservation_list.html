@@ -1,7 +1,7 @@
 {% block content %}
 <h1>Reservation</h1>
 {% for reservation in object_list %}
-    <p>{{reservation.id}} - {{reservation.content}} - {{reservation.owner_id.id}}({{reservation.owner_id.name}})</p>
+    <p>{{reservation.id}} - {{reservation.context}} - {{reservation.owner.id}}({{reservation.owner.name}})</p>
 {% endfor %}
 
 {% endblock content %}
